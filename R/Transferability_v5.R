@@ -136,11 +136,15 @@ for(seg in 1:length(CSVs)){
   # Volume_deletion       <- 0
   # Number_of_Droped_Skus <- 0
   
-  Score_Table_Initial <- Score_Table
-  WeightTable_Initial <- WeightTable # Línea añadida por Accenture Analytics MX para 
+  
   
   # Lineas añadidas por Accenture Analytics MX
   Number_of_Droped_Skus <- 0
+  
+  Score_Table_Initial <- Score_Table
+  WeightTable_Initial <- WeightTable # Línea añadida por Accenture Analytics MX para 
+  Remain_Table_Initial <- Remain_Table
+  
   Number_of_Skus <- sum(WeightTable_Initial$manufacturer == "BEPENSA")
   temp <- WeightTable_Initial[WeightTable_Initial$manufacturer == "BEPENSA",]
   ############################################
@@ -149,6 +153,9 @@ for(seg in 1:length(CSVs)){
     # while(  Number_of_Droped_Skus < SKU_Criterion  ){
     Number_of_Droped_Skus <- Number_of_Droped_Skus + 1
     print(paste("SKU:",Number_of_Droped_Skus))
+    WeightTable <- WeightTable_Initial 
+    Remain_Table <- Remain_Table_Initial
+    
     # while(  length(SKU_List_Criterion)>0  ){
     # Sku_To_Delete <- SKU_List_Criterion[1]
     # SKU_List_Criterion <- SKU_List_Criterion[-1]
@@ -231,32 +238,32 @@ for(seg in 1:length(CSVs)){
     
     # Sku Deletion from tables
     
-    WeightTable <- WeightTable_Initial[WeightTable_Initial[,"Grouping_sku_name_new"]!=Sku_To_Delete,]
-    Xtables <-    Xtables[Xtables[,"Grouping_sku_name_new"]!=Sku_To_Delete,]
-    Loss_Table  <- Fun_Loss_Split(WeightTable,Index)
-    Remain_Table <- cbind(WeightTable[which(colnames(WeightTable) %in% IndexCheck)],
-                          WeightTable[which(colnames(WeightTable) %ni% IndexCheck)] - Loss_Table[which(colnames(Loss_Table) %ni% IndexCheck)])
+    # WeightTable <- WeightTable_Initial[WeightTable_Initial[,"Grouping_sku_name_new"]!=Sku_To_Delete,]
+    # Xtables <-    Xtables[Xtables[,"Grouping_sku_name_new"]!=Sku_To_Delete,]
+    # Loss_Table  <- Fun_Loss_Split(WeightTable,Index)
+    # Remain_Table <- cbind(WeightTable[which(colnames(WeightTable) %in% IndexCheck)],
+    #                       WeightTable[which(colnames(WeightTable) %ni% IndexCheck)] - Loss_Table[which(colnames(Loss_Table) %ni% IndexCheck)])
     
     ## Recalculation  of Score
-    Score_Table <- Score_Table_Initial[-Rem,]
-    Score_Table <- Score_Table[,which(colnames(Score_Table) %in%  c("Grouping_sku_name_new"  ,
-                                                                    "Share_Volume",
-                                                                    "Share_Value",
-                                                                    "manufacturer",
-                                                                    "Total_Volume",
-                                                                    "Total_Value",
-                                                                    "DenormalizedFactor" ))]
-    Score_Table <- merge(Score_Table,NewVolume)
-    Incrementality <- cbind(Loss_Table[,which(colnames(Loss_Table) %in%  c(SKU_name)),drop=F],
-                            apply(Loss_Table[,which(colnames(Loss_Table) %ni%  IndexCheck)], 1, sum))
-    colnames(Incrementality) <- c("Grouping_sku_name_new","Incrementality")  
-    Score_Table <- merge(Score_Table,Incrementality)
-    Score_Table$Shared_Incrementality <- Score_Table$Incrementality / Score_Table$volume_bottle_per_POS_month_imp
-    Score_Table <- What_if_split(Remain_Table,WeightTable,Score_Table,Index)
-    Score_Table$Score <- Volume_Weight * Score_Table$Share_Volume + 
-      Loss_Weight * Score_Table$Shared_Incrementality + 
-      Value_Weight * Score_Table$Share_Value + 
-      Comp_weight * Score_Table$Remaining_Comp
+    # Score_Table <- Score_Table_Initial[-Rem,]
+    # Score_Table <- Score_Table[,which(colnames(Score_Table) %in%  c("Grouping_sku_name_new"  ,
+    #                                                                 "Share_Volume",
+    #                                                                 "Share_Value",
+    #                                                                 "manufacturer",
+    #                                                                 "Total_Volume",
+    #                                                                 "Total_Value",
+    #                                                                 "DenormalizedFactor" ))]
+    # Score_Table <- merge(Score_Table,NewVolume)
+    # Incrementality <- cbind(Loss_Table[,which(colnames(Loss_Table) %in%  c(SKU_name)),drop=F],
+    #                         apply(Loss_Table[,which(colnames(Loss_Table) %ni%  IndexCheck)], 1, sum))
+    # colnames(Incrementality) <- c("Grouping_sku_name_new","Incrementality")  
+    # Score_Table <- merge(Score_Table,Incrementality)
+    # Score_Table$Shared_Incrementality <- Score_Table$Incrementality / Score_Table$volume_bottle_per_POS_month_imp
+    # Score_Table <- What_if_split(Remain_Table,WeightTable,Score_Table,Index)
+    # Score_Table$Score <- Volume_Weight * Score_Table$Share_Volume + 
+    #   Loss_Weight * Score_Table$Shared_Incrementality + 
+    #   Value_Weight * Score_Table$Share_Value + 
+    #   Comp_weight * Score_Table$Remaining_Comp
   }
   
   Report2 <- Report[Report[,"SKU_NAME"]!="NA",]
