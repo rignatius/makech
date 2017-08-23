@@ -51,7 +51,8 @@ What_if_split <- function(Remain_Table,WeightTable,Score_Table,Index){
     if(Rem %% 10 == 0 | Rem==nrow(Xtables)){
       print(paste0(substr(CSVs[seg],12,nchar(CSVs[seg])-4),". Distribute Volume to the remaining skus (whatif) : ",Rem," of ",nrow(Remain_Table)))
     }
-    Remain_Table <- cbind(WeightTable[which(colnames(WeightTable) %in% c(DepVarName,SKU_name, "manufacturer" ))],WeightTable[which(colnames(WeightTable) %ni% c(DepVarName,SKU_name, "manufacturer" ))] - Loss_Table[which(colnames(Loss_Table) %ni% c(DepVarName,SKU_name, "manufacturer" ))])
+    Remain_Table <- cbind(WeightTable[which(colnames(WeightTable) %in% c(DepVarName,SKU_name, "manufacturer" ))],
+                          WeightTable[which(colnames(WeightTable) %ni% c(DepVarName,SKU_name, "manufacturer" ))] - Loss_Table[which(colnames(Loss_Table) %ni% c(DepVarName,SKU_name, "manufacturer" ))])
     TransTable <-  WeightTable
     Bepensa_share <- 0
     Comp_share <-0 
@@ -74,6 +75,7 @@ What_if_split <- function(Remain_Table,WeightTable,Score_Table,Index){
     Score_Table[ Score_Table[,"Grouping_sku_name_new"]==Sku,"TransferedToComp"]  <- Comp_share
     
   }
-  Score_Table$Remaining_Comp <-(Score_Table$TransferedToComp*Score_Table$DenormalizedFactor)/sum(Score_Table[Score_Table[,"manufacturer"]=="BEPENSA","Total_Volume"])
+  Score_Table$Remaining_Comp <-(Score_Table$TransferedToComp*Score_Table$DenormalizedFactor)/
+    sum(Score_Table[Score_Table[,"manufacturer"]=="BEPENSA","Total_Volume"])
   return(Score_Table)
 }

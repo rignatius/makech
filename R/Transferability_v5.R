@@ -137,17 +137,29 @@ for(seg in 1:length(CSVs)){
   # Number_of_Droped_Skus <- 0
   
   Score_Table_Initial <- Score_Table
+  WeightTable_Initial <- WeightTable # Línea añadida por Accenture Analytics MX para 
   
-  while(  CumulativeSUM < Volume_Criterion  ){
+  # Lineas añadidas por Accenture Analytics MX
+  Number_of_Droped_Skus <- 0
+  Number_of_Skus <- sum(WeightTable_Initial$manufacturer == "BEPENSA")
+  temp <- WeightTable_Initial[WeightTable_Initial$manufacturer == "BEPENSA",]
+  ############################################
+  while(  Number_of_Droped_Skus < Number_of_Skus  ){ 
+    #while(  CumulativeSUM < Volume_Criterion  ){
     # while(  Number_of_Droped_Skus < SKU_Criterion  ){
-    # Number_of_Droped_Skus <- Number_of_Droped_Skus + 1
+    Number_of_Droped_Skus <- Number_of_Droped_Skus + 1
+    print(paste("SKU:",Number_of_Droped_Skus))
     # while(  length(SKU_List_Criterion)>0  ){
     # Sku_To_Delete <- SKU_List_Criterion[1]
     # SKU_List_Criterion <- SKU_List_Criterion[-1]
     
-    TempScore <- Score_Table
-    TempScore <- Score_Table[which( Score_Table[,manufacturer]=="BEPENSA"),]
-    Sku_To_Delete <- TempScore[which(TempScore[,"Score"]==min(TempScore$Score)),SKU_name]
+    # TempScore <- Score_Table
+    # TempScore <- Score_Table[which( Score_Table[,manufacturer]=="BEPENSA"),]
+    # Sku_To_Delete <- TempScore[which(TempScore[,"Score"]==min(TempScore$Score)),SKU_name]
+    
+    
+    Sku_To_Delete <- temp[Number_of_Droped_Skus,SKU_name]
+    print(paste("SKU a borrar:",Sku_To_Delete))
 #     Volume_deletion <- Volume_deletion + Score_Table[Score_Table[,SKU_name]== Sku_To_Delete,"Total_Volume"]
     # CumulativeSUM <-  (Volume_deletion/TotalVolume) 
     # write.csv(WeightTable,paste0(Output,"/WeightTable1.csv"),row.names = F)
@@ -218,14 +230,15 @@ for(seg in 1:length(CSVs)){
     Report <- smartbind(Report,DataForReport)
     
     # Sku Deletion from tables
-    WeightTable <- WeightTable[WeightTable[,"Grouping_sku_name_new"]!=Sku_To_Delete,]
+    
+    WeightTable <- WeightTable_Initial[WeightTable_Initial[,"Grouping_sku_name_new"]!=Sku_To_Delete,]
     Xtables <-    Xtables[Xtables[,"Grouping_sku_name_new"]!=Sku_To_Delete,]
     Loss_Table  <- Fun_Loss_Split(WeightTable,Index)
     Remain_Table <- cbind(WeightTable[which(colnames(WeightTable) %in% IndexCheck)],
                           WeightTable[which(colnames(WeightTable) %ni% IndexCheck)] - Loss_Table[which(colnames(Loss_Table) %ni% IndexCheck)])
     
     ## Recalculation  of Score
-    Score_Table <- Score_Table[-Rem,]
+    Score_Table <- Score_Table_Initial[-Rem,]
     Score_Table <- Score_Table[,which(colnames(Score_Table) %in%  c("Grouping_sku_name_new"  ,
                                                                     "Share_Volume",
                                                                     "Share_Value",
@@ -250,3 +263,4 @@ for(seg in 1:length(CSVs)){
   write.csv(Report2,paste0(Output,"/Report_",substr(CSVs[seg],12,nchar(CSVs[seg]))),row.names = F)
   Time_Vector[seg] <- (proc.time() - pta )[3]
 } 
+
